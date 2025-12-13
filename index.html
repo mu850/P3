@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html lang="ur" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>آٹا چکی رجسٹر</title>
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#2e7d32">
+    <style>
+        :root { --primary: #2e7d32; --accent: #f1c40f; --danger: #d32f2f; --dark: #263238; }
+        body { font-family: 'Segoe UI', Arial, sans-serif; background: #f0f4f7; padding: 10px; margin: 0; }
+        .container { background: white; max-width: 800px; margin: auto; border-radius: 15px; box-shadow: 0 5px 25px rgba(0,0,0,0.1); padding: 15px; }
+        h2 { text-align: center; color: var(--primary); border-bottom: 2px solid #eee; padding-bottom: 10px; }
+        .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 15px; }
+        input { padding: 12px; border: 1px solid #ccc; border-radius: 8px; font-size: 16px; width: 100%; box-sizing: border-box; }
+        label { font-weight: bold; margin-bottom: 5px; display: block; }
+        .check-box-area { background: #e8f5e9; padding: 12px; border-radius: 10px; margin-bottom: 15px; }
+        .check-item { display: flex; align-items: center; cursor: pointer; }
+        .check-item input { width: 20px; height: 20px; margin-left: 10px; }
+        .btn-calc { width: 100%; padding: 15px; background: var(--primary); color: white; border: none; border-radius: 8px; font-size: 18px; font-weight: bold; cursor: pointer; }
+        #resultBox { background: var(--dark); color: white; padding: 20px; border-radius: 12px; margin-top: 15px; display: none; }
+        .res-row { display: flex; justify-content: space-between; margin-bottom: 8px; border-bottom: 1px solid #444; padding-bottom: 4px; }
+        .action-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 15px; }
+        .action-grid button { padding: 12px; border: none; border-radius: 6px; font-weight: bold; color: white; cursor: pointer; }
+        .btn-save { background: #27ae60; grid-column: span 2; }
+        .btn-khata { background: #e67e22; }
+        .btn-edit { background: #2980b9; }
+        .tabs { display: flex; margin-top: 25px; border-bottom: 2px solid #ddd; }
+        .tab { flex: 1; padding: 12px; text-align: center; cursor: pointer; font-weight: bold; }
+        .tab.active { border-bottom: 4px solid var(--primary); color: var(--primary); }
+        .tab-content { display: none; padding-top: 15px; }
+        .tab-content.active { display: block; }
+        table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+        th, td { border: 1px solid #ddd; padding: 10px; text-align: center; }
+        th { background: #37474f; color: white; }
+        .btn-rec { background: #1abc9c; color: white; border: none; padding: 5px 10px; border-radius: 4px; cursor: pointer; }
+        .btn-del { background: var(--danger); color: white; border: none; padding: 5px 10px; border-radius: 4px; cursor: pointer; }
+    </style>
+</head>
+<body onload="initApp()">
+
+<div class="container">
+    <h2>آٹا چکی ڈیجیٹل رجسٹر</h2>
+
+    <div class="form-grid">
+        <div><label>گاہک کا نام</label><input type="text" id="cName"></div>
+        <div><label>گندم وزن (کلو)</label><input type="number" id="wWeight"></div>
+        <div><label>آٹا ریٹ</label><input type="number" id="aRate" value="110"></div>
+        <div><label>ایڈوانس آٹا (کلو)</label><input type="number" id="advA" value="0"></div>
+    </div>
+    <div class="check-box-area">
+        <label class="check-item"><input type="checkbox" id="noCln"><span>صفائی نہیں کرنی (1.20 روپے بچت)</span></label>
+        <label class="check-item"><input type="checkbox" id="noKat"><span>کٹوتی نہیں کرنی (رقم بل میں شامل کریں)</span></label>
+        <label class="check-item"><input type="checkbox" id="payByA"><span>بل آٹے سے کاٹیں</span></label>
+    </div>
+
+    <button class="btn-calc" onclick="calculateBill()">حساب کریں</button>
+
+    <div id="resultBox">
+        <div class="res-row"><span>کل فیس:</span> <span id="outF" style="color:white;">0</span></div>
+        <div class="res-row"><span>ٹوٹل بل:</span> <span id="outB" style="color:#f1c40f; font-size:20px;">0</span></div>
+        <div class="res-row"><span>صاف آٹا:</span> <span id="outNet" style="color:#2ecc71; font-size:20px;">0</span> کلو</div>
+        <div class="action-grid">
+            <button class="btn-save" onclick="saveData('Paid')">نقد وصولی</button>
+            <button class="btn-edit" onclick="document.getElementById('resultBox').style.display='none'">ایڈٹ</button>
+            <button class="btn-khata" onclick="saveData('Khata')">ادھار کھاتہ</button>
+        </div>
+    </div>
+
+    <div class="tabs">
+        <div class="tab active" onclick="switchTab(event, 'tab1')">روزمرہ</div>
+        <div class="tab" onclick="switchTab(event, 'tab2')">کھاتہ</div>
+    </div>
+
+    <div id="tab1" class="tab-content active">
+        <table id="dailyTbl"><thead><tr><th>نام</th><th>وزن</th><th>بل</th><th>تاریخ</th><th>اعمال</th></tr></thead><tbody></tbody></table>
+    </div>
+    <div id="tab2" class="tab-content">
+        <table id="khataTbl"><thead><tr><th>نام</th><th>بل</th><th>وصول شدہ</th><th>بقایا</th><th>اعمال</th></tr></thead><tbody></tbody></table>
+    </div>
+</div>
+
+<script>
+    const PISAI_RATE = 3.00;
+    const SAFAI_RATE = 1.20;
+    const KATOTI_PERCENT = 0.050; // 5% یا 50 گرام فی کلو
+
+    let db = [];
+    
+    // PWA سروس ورکر کا رجسٹریشن فنکشن
+    function initApp() {
+        const stored = localStorage.getItem('chaki_db_final');
+        if (stored) db = JSON.parse(stored);
+        
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.register('./sw.js').then(reg => {
+                console.log('Service Worker Registered');
+            }).catch(err => console.log('SW registration failed:', err));
+        }
+        render();
+    }
+
+
+    function calculateBill() {
+        const name = document.getElementById('cName').value.trim();
+        const weight = parseFloat(document.getElementById('wWeight').value) || 0;
+        const rate = parseFloat(document.getElementById('aRate').value) || 0;
+        const adv = parseFloat(document.getElementById('advA').value) || 0;
+
+        const noCln = document.getElementById('noCln').checked;
+        const noKat = document.getElementById('noKat').checked;
+        const payByA = document.getElementById('payByA').checked;
+
+        if (name === "" || weight === 0) {
+            alert("براہ کرم گاہک کا نام اور گندم کا وزن درست درج کریں۔");
+            return;
+        }
+
+        // 1. فیس کا حساب
+        let safaiFee = noCln ? 0 : (weight * SAFAI_RATE);
+        let totalFees = (weight * PISAI_RATE) + safaiFee;
+
+        // 2. کٹوتی کا حساب
+        let katotiWeight = weight * KATOTI_PERCENT;
+        let katotiCost = noKat ? (katotiWeight * rate) : 0;
+
+        let totalBill = totalFees + katotiCost;
+
+        // 3. صاف آٹا (Flour) کا حساب: (وزن - کٹوتی) - ایڈوانس
+        let deductionForFlour = noKat ? 0 : katotiWeight;
+        let netFlour = (weight - deductionForFlour) - adv;
+        
+        // اگر بل آٹے سے ادا ہو
+        if (payByA) {
+            netFlour -= (totalBill / rate);
+            totalBill = 0;
+        }
+
+        // آؤٹ پٹ کو اپ ڈیٹ کریں
+        document.getElementById('outF').innerText = totalFees.toFixed(0) + " روپے";
+        document.getElementById('outB').innerText = totalBill.toFixed(0) + " روپے";
+        document.getElementById('outNet').innerText = netFlour.toFixed(2);
+        document.getElementById('resultBox').style.display = 'block';
+
+        window.currentData = { 
+            id: Date.now(), name, weight, 
+            totalBill, 
+            paid: 0, 
+            balance: totalBill, // ابتدائی طور پر بیلنس ٹوٹل بل کے برابر ہے
+            netFlour, 
+            date: new Date().toISOString().split('T')[0] 
+        };
+    }
+
+    function saveData(status) {
+        if (!window.currentData) { alert("پہلے حساب کریں!"); return; }
+        if (!confirm(`کیا آپ اس انٹری کو بطور "${status === 'Paid' ? 'نقد' : 'کھاتہ'}" محفوظ کرنا چاہتے ہیں؟`)) return;
+
+        let data = { ...window.currentData };
+
+        if (status === 'Paid') { 
+            data.paid = data.totalBill; 
+            data.balance = 0;
+            data.status = 'Paid';
+        } else {
+            data.status = 'Khata';
+        }
+        
+        db.push(data);
+        localStorage.setItem('chaki_db_final', JSON.stringify(db));
+        render();
+        document.getElementById('resultBox').style.display = 'none';
+        alert("ریکارڈ محفوظ ہو گیا!");
+        
+        document.getElementById('cName').value = '';
+        document.getElementById('wWeight').value = '';
+        document.getElementById('advA').value = '0';
+        window.currentData = null;
+    }
+
+    function receiveKhata(id) {
+        const idx = db.findIndex(r => r.id === id);
+        const item = db[idx];
+        
+        let amount = prompt(`${item.name} سے وصول کی گئی رقم درج کریں (بقایا: ${item.balance.toFixed(0)}):`, item.balance.toFixed(0));
+        const val = parseFloat(amount);
+
+        if (isNaN(val) || val <= 0 || val > item.balance) { alert("غلط رقم درج کی گئی یا رقم بقایا سے زیادہ ہے!"); return; }
+
+        if (confirm(`${val.toFixed(0)} روپے کی وصولی درج کریں؟`)) {
+            item.paid += val;
+            item.balance -= val;
+            
+            if (item.balance <= 0.01) { // Floating point correction
+                item.balance = 0;
+                item.status = 'Paid';
+                alert("اکاؤنٹ مکمل طور پر وصول ہو گیا!");
+            }
+
+            localStorage.setItem('chaki_db_final', JSON.stringify(db));
+            render();
+        }
+    }
+
+
+    function render() {
+        const daily = document.querySelector('#dailyTbl tbody');
+        const khata = document.querySelector('#khataTbl tbody');
+        daily.innerHTML = ''; khata.innerHTML = '';
+
+        db.sort((a,b) => b.id - a.id).forEach(item => {
+            if(item.status === 'Paid') {
+                daily.innerHTML += `<tr>
+                    <td>${item.name}</td><td>${item.weight.toFixed(2)}</td><td>${item.totalBill.toFixed(0)}</td><td>${item.date}</td>
+                    <td><button class="btn-del" onclick="del(${item.id})">حذف</button></td>
+                </tr>`;
+            } else {
+                // پارشل وصولی کے لیے کھاتہ ٹیبل
+                khata.innerHTML += `<tr>
+                    <td>${item.name}</td><td>${item.totalBill.toFixed(0)}</td><td>${item.paid.toFixed(0)}</td>
+                    <td style="color:${item.balance > 0 ? 'red' : 'green'}; font-weight:bold">${item.balance.toFixed(0)}</td>
+                    <td>
+                        <button class="btn-rec" onclick="receiveKhata(${item.id})">وصولی</button>
+                        <button class="btn-del" onclick="del(${item.id})">حذف</button>
+                    </td>
+                </tr>`;
+            }
+        });
+    }
+
+    function del(id) {
+        if (confirm("کیا آپ واقعی یہ ریکارڈ ڈیلیٹ کرنا چاہتے ہیں؟")) {
+            db = db.filter(i => i.id !== id);
+            localStorage.setItem('chaki_db_final', JSON.stringify(db));
+            render();
+        }
+    }
+
+    function switchTab(e, id) {
+        document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+        document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+        document.getElementById(id).classList.add('active');
+        e.currentTarget.classList.add('active');
+    }
+</script>
+</body>
+</html>
