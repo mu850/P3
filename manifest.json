@@ -1,0 +1,16 @@
+{
+  "name": "آٹا چکی رجسٹر",
+  "short_name": "آٹا چکی",
+  "description": "آٹا چکی کا مکمل حساب کتاب اور کھاتہ رجسٹر۔",
+  "start_url": "index.html",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#2e7d32",
+  "icons": [
+    {
+      "src": "https://cdn-icons-png.flaticon.com/512/3301/3301614.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}
