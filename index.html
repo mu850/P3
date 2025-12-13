@@ -70,13 +70,23 @@
     <div class="tabs">
         <div class="tab active" onclick="switchTab(event, 'tab1')">روزمرہ</div>
         <div class="tab" onclick="switchTab(event, 'tab2')">کھاتہ</div>
+        <div class="tab" onclick="switchTab(event, 'tab3')">مجموعی رپورٹ</div>
     </div>
 
     <div id="tab1" class="tab-content active">
         <table id="dailyTbl"><thead><tr><th>نام</th><th>وزن</th><th>بل</th><th>تاریخ</th><th>اعمال</th></tr></thead><tbody></tbody></table>
     </div>
+
     <div id="tab2" class="tab-content">
-        <table id="khataTbl"><thead><tr><th>نام</th><th>بل</th><th>وصول شدہ</th><th>بقایا</th><th>اعمال</th></tr></thead><tbody></tbody></table>
+        <table id="khataTbl"><thead><tr><th>نام</th><th>ٹوٹل ادھار</th><th>وصول شدہ</th><th>بقایا</th><th>اعمال</th></tr></thead><tbody></tbody></table>
+    </div>
+    
+    <div id="tab3" class="tab-content">
+        <h3>مجموعی بیلنس شیٹ</h3>
+        <table id="summaryTbl">
+            <thead><tr><th>گاہک کا نام</th><th>کل ادھار</th><th>کل وصولی</th><th>حتمی بقایا</th><th>اعمال</th></tr></thead>
+            <tbody></tbody>
+        </table>
     </div>
 </div>
 
@@ -87,15 +97,12 @@
 
     let db = [];
     
-    // PWA سروس ورکر کا رجسٹریشن فنکشن
     function initApp() {
         const stored = localStorage.getItem('chaki_db_final');
         if (stored) db = JSON.parse(stored);
         
         if ('serviceWorker' in navigator) {
-            navigator.serviceWorker.register('./sw.js').then(reg => {
-                console.log('Service Worker Registered');
-            }).catch(err => console.log('SW registration failed:', err));
+            navigator.serviceWorker.register('./sw.js').catch(err => console.log('SW registration failed:', err));
         }
         render();
     }
@@ -116,27 +123,21 @@
             return;
         }
 
-        // 1. فیس کا حساب
         let safaiFee = noCln ? 0 : (weight * SAFAI_RATE);
         let totalFees = (weight * PISAI_RATE) + safaiFee;
 
-        // 2. کٹوتی کا حساب
         let katotiWeight = weight * KATOTI_PERCENT;
         let katotiCost = noKat ? (katotiWeight * rate) : 0;
-
         let totalBill = totalFees + katotiCost;
 
-        // 3. صاف آٹا (Flour) کا حساب: (وزن - کٹوتی) - ایڈوانس
         let deductionForFlour = noKat ? 0 : katotiWeight;
         let netFlour = (weight - deductionForFlour) - adv;
         
-        // اگر بل آٹے سے ادا ہو
         if (payByA) {
             netFlour -= (totalBill / rate);
             totalBill = 0;
         }
 
-        // آؤٹ پٹ کو اپ ڈیٹ کریں
         document.getElementById('outF').innerText = totalFees.toFixed(0) + " روپے";
         document.getElementById('outB').innerText = totalBill.toFixed(0) + " روپے";
         document.getElementById('outNet').innerText = netFlour.toFixed(2);
@@ -146,7 +147,7 @@
             id: Date.now(), name, weight, 
             totalBill, 
             paid: 0, 
-            balance: totalBill, // ابتدائی طور پر بیلنس ٹوٹل بل کے برابر ہے
+            balance: totalBill, 
             netFlour, 
             date: new Date().toISOString().split('T')[0] 
         };
@@ -177,7 +178,7 @@
         document.getElementById('advA').value = '0';
         window.currentData = null;
     }
-
+    
     function receiveKhata(id) {
         const idx = db.findIndex(r => r.id === id);
         const item = db[idx];
@@ -191,7 +192,7 @@
             item.paid += val;
             item.balance -= val;
             
-            if (item.balance <= 0.01) { // Floating point correction
+            if (item.balance <= 0.01) { 
                 item.balance = 0;
                 item.status = 'Paid';
                 alert("اکاؤنٹ مکمل طور پر وصول ہو گیا!");
@@ -204,30 +205,72 @@
 
 
     function render() {
-        const daily = document.querySelector('#dailyTbl tbody');
-        const khata = document.querySelector('#khataTbl tbody');
-        daily.innerHTML = ''; khata.innerHTML = '';
+        const daily = document.querySelector('#tab1 tbody');
+        const khata = document.querySelector('#tab2 tbody');
+        const summaryBody = document.querySelector('#tab3 tbody');
+        daily.innerHTML = ''; khata.innerHTML = ''; summaryBody.innerHTML = '';
 
+        // Same Name/Aggregate Logic
+        const aggregatedKhata = {};
+        
         db.sort((a,b) => b.id - a.id).forEach(item => {
+            
+            // 1. روزمرہ اور کھاتہ ٹیبل
             if(item.status === 'Paid') {
                 daily.innerHTML += `<tr>
                     <td>${item.name}</td><td>${item.weight.toFixed(2)}</td><td>${item.totalBill.toFixed(0)}</td><td>${item.date}</td>
                     <td><button class="btn-del" onclick="del(${item.id})">حذف</button></td>
                 </tr>`;
             } else {
-                // پارشل وصولی کے لیے کھاتہ ٹیبل
                 khata.innerHTML += `<tr>
                     <td>${item.name}</td><td>${item.totalBill.toFixed(0)}</td><td>${item.paid.toFixed(0)}</td>
-                    <td style="color:${item.balance > 0 ? 'red' : 'green'}; font-weight:bold">${item.balance.toFixed(0)}</td>
+                    <td style="color:red; font-weight:bold">${item.balance.toFixed(0)}</td>
                     <td>
                         <button class="btn-rec" onclick="receiveKhata(${item.id})">وصولی</button>
                         <button class="btn-del" onclick="del(${item.id})">حذف</button>
                     </td>
                 </tr>`;
             }
+            
+            // 2. مجموعی رپورٹ (Same Name Handling)
+            if (!aggregatedKhata[item.name]) {
+                aggregatedKhata[item.name] = { totalCredit: 0, totalPaid: 0, finalBalance: 0 };
+            }
+
+            aggregatedKhata[item.name].totalCredit += item.totalBill;
+            aggregatedKhata[item.name].totalPaid += item.paid;
+            aggregatedKhata[item.name].finalBalance += (item.totalBill - item.paid);
         });
+
+        // 3. مجموعی رپورٹ ٹیبل کو بھرنا
+        for (const name in aggregatedKhata) {
+            const data = aggregatedKhata[name];
+            summaryBody.innerHTML += `<tr>
+                <td>${name}</td>
+                <td>${data.totalCredit.toFixed(0)}</td>
+                <td>${data.totalPaid.toFixed(0)}</td>
+                <td style="color:${data.finalBalance > 0 ? 'red' : 'green'}; font-weight:bold">${data.finalBalance.toFixed(0)}</td>
+                <td>
+                    <button class="btn-rec" onclick="promptNewCredit('${name}')">نیا ادھار شامل</button>
+                </td>
+            </tr>`;
+        }
     }
 
+    // نیا فنکشن: پرانے گاہک کے لیے نئی انٹری شامل کرنا
+    function promptNewCredit(name) {
+        // پہلے حساب کریں اور پھر یہاں ایڈ کریں
+        document.getElementById('cName').value = name;
+        alert(`براہ کرم گاہک ${name} کے لیے نیا وزن درج کریں اور حساب کریں۔ پھر 'ادھار کھاتہ' بٹن دبائیں تاکہ نیا ادھار اسی نام کے ساتھ شامل ہو جائے۔`);
+        
+        // ٹیب کو مین ان پٹ پر منتقل کرنا
+        document.querySelector('.tab.active').classList.remove('active');
+        document.getElementById('tab1').classList.remove('active');
+        
+        // صرف فارم پر فوکس کرنے کے لیے
+        window.scrollTo(0, 0); 
+    }
+    
     function del(id) {
         if (confirm("کیا آپ واقعی یہ ریکارڈ ڈیلیٹ کرنا چاہتے ہیں؟")) {
             db = db.filter(i => i.id !== id);
@@ -245,3 +288,4 @@
 </script>
 </body>
 </html>
+
