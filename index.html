@@ -3,60 +3,45 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>آٹا چکی اسمارٹ رجسٹر</title>
-    <link rel="manifest" href="manifest.json">
-    <meta name="theme-color" content="#2e7d32">
+    <title>آٹا چکی رجسٹر - PDF رپورٹ</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
     <style>
-        :root { --primary: #2e7d32; --secondary: #1565c0; --danger: #d32f2f; --dark: #263238; }
-        body { font-family: 'Segoe UI', Arial, sans-serif; background: #f4f7f6; padding: 10px; margin: 0; }
-        .container { background: white; max-width: 900px; margin: auto; border-radius: 15px; box-shadow: 0 5px 20px rgba(0,0,0,0.1); padding: 15px; }
-        h2 { text-align: center; color: var(--primary); margin-bottom: 20px; border-bottom: 2px solid #eee; padding-bottom: 10px; }
+        :root { --primary: #2e7d32; --dark: #263238; --accent: #f1c40f; }
+        body { font-family: 'Segoe UI', Tahoma, Arial, sans-serif; background: #f4f7f6; padding: 10px; margin: 0; direction: rtl; }
+        .container { background: white; max-width: 950px; margin: auto; border-radius: 15px; box-shadow: 0 5px 20px rgba(0,0,0,0.1); padding: 15px; }
+        h2 { text-align: center; color: var(--primary); border-bottom: 2px solid #eee; padding-bottom: 10px; }
         
-        /* Form Box */
-        .form-box { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 20px; background: #fff; padding: 15px; border-radius: 10px; border: 1px solid #ddd; }
+        /* Form & Inputs */
+        .form-box { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin-bottom: 20px; background: #fff; padding: 15px; border-radius: 10px; border: 1px solid #ddd; }
         .f-group { display: flex; flex-direction: column; }
         label { font-weight: bold; margin-bottom: 5px; color: #444; }
         input { padding: 12px; border: 1px solid #ccc; border-radius: 8px; font-size: 16px; }
+        .checkboxes { grid-column: 1 / -1; display: flex; flex-wrap: wrap; gap: 15px; background: #e8f5e9; padding: 10px; border-radius: 8px; }
+        .btn-calc { grid-column: 1 / -1; padding: 15px; background: var(--primary); color: white; border: none; border-radius: 8px; font-size: 18px; font-weight: bold; cursor: pointer; }
 
-        .checkboxes { grid-column: span 2; display: flex; flex-wrap: wrap; gap: 15px; background: #e8f5e9; padding: 10px; border-radius: 8px; }
-        .check-item { display: flex; align-items: center; cursor: pointer; font-size: 14px; font-weight: 500; }
-        .check-item input { width: 18px; height: 18px; margin-left: 8px; }
+        /* Report Cards */
+        .report-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 10px; margin-bottom: 20px; }
+        .report-card { background: var(--dark); color: white; padding: 15px; border-radius: 10px; text-align: center; border-bottom: 4px solid var(--accent); }
+        .report-card h4 { margin: 0; font-size: 13px; color: #bbb; }
+        .report-card p { margin: 8px 0 0; font-size: 18px; font-weight: bold; color: var(--accent); }
 
-        .btn-calc { grid-column: span 2; padding: 15px; background: var(--primary); color: white; border: none; border-radius: 8px; font-size: 18px; font-weight: bold; cursor: pointer; }
-
-        /* Result Panel */
-        #resPanel { background: var(--dark); color: white; padding: 20px; border-radius: 12px; margin-top: 15px; display: none; }
-        .r-row { display: flex; justify-content: space-between; margin-bottom: 10px; border-bottom: 1px solid #444; padding-bottom: 5px; }
-        .highlight { color: #f1c40f; font-size: 22px; font-weight: bold; }
-
-        .btn-actions { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 15px; }
-        .btn-actions button { padding: 12px; border: none; border-radius: 6px; font-weight: bold; cursor: pointer; color: white; }
-        .btn-green { background: #27ae60; grid-column: span 2; font-size: 18px; }
-        .btn-orange { background: #e67e22; }
-        .btn-blue { background: #2980b9; }
-
-        /* Tabs and Tables */
-        .tab-bar { display: flex; margin-top: 30px; border-bottom: 2px solid #ddd; overflow-x: auto; }
-        .tab-btn { flex: 1; padding: 12px; text-align: center; cursor: pointer; font-weight: bold; color: #666; white-space: nowrap; }
+        /* Buttons */
+        .btn-pdf { background: #c0392b; color: white; padding: 10px 20px; border: none; border-radius: 5px; cursor: pointer; font-weight: bold; margin-bottom: 10px; display: flex; align-items: center; gap: 8px; }
+        
+        /* Tables */
+        .tab-bar { display: flex; border-bottom: 2px solid #ddd; margin-bottom: 15px; }
+        .tab-btn { flex: 1; padding: 12px; text-align: center; cursor: pointer; font-weight: bold; color: #666; }
         .tab-btn.active { border-bottom: 4px solid var(--primary); color: var(--primary); }
-        .tab-page { display: none; padding-top: 20px; }
+        .tab-page { display: none; }
         .tab-page.active { display: block; }
-
-        table { width: 100%; border-collapse: collapse; background: white; border-radius: 8px; overflow: hidden; }
-        th, td { border: 1px solid #ddd; padding: 12px; text-align: center; }
+        table { width: 100%; border-collapse: collapse; background: white; margin-top: 5px; }
+        th, td { border: 1px solid #ddd; padding: 10px; text-align: center; font-size: 14px; }
         th { background: #37474f; color: white; }
-        tr:nth-child(even) { background: #f9f9f9; }
+        
+        #resPanel { background: #222; color: white; padding: 15px; border-radius: 10px; margin-top: 15px; display: none; }
 
-        .summary-card { background: #fff; padding: 20px; border-radius: 10px; box-shadow: 0 2px 8px rgba(0,0,0,0.05); margin-bottom: 20px; display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; }
-        .stat-item { text-align: center; border-left: 1px solid #eee; }
-        .stat-item:last-child { border-left: none; }
-        .stat-val { font-size: 18px; font-weight: bold; color: var(--primary); }
-
-        .badge { padding: 3px 8px; border-radius: 4px; font-size: 12px; font-weight: bold; }
-        .badge-khata { background: #ffebee; color: #c62828; }
-        .badge-paid { background: #e8f5e9; color: #2e7d32; }
-
-        @media (max-width: 600px) { .form-box { grid-template-columns: 1fr; } .summary-card { grid-template-columns: 1fr; } }
+        /* PDF Layout optimization */
+        #pdfContent { padding: 10px; }
     </style>
 </head>
 <body onload="appInit()">
@@ -65,79 +50,76 @@
     <h2>آٹا چکی ڈیجیٹل رجسٹر</h2>
 
     <div class="form-box">
-        <div class="f-group"><label>گاہک کا نام</label><input type="text" id="custName" list="customerList" placeholder="نام لکھیں یا منتخب کریں">
-            <datalist id="customerList"></datalist>
-        </div>
+        <div class="f-group"><label>گاہک کا نام</label><input type="text" id="custName" list="customerList"><datalist id="customerList"></datalist></div>
         <div class="f-group"><label>گندم وزن (کلو)</label><input type="number" id="wtInput" placeholder="0.00"></div>
-        <div class="f-group"><label>آٹا ریٹ (فی کلو)</label><input type="number" id="rateInput" value="110"></div>
-        <div class="f-group"><label>ایڈوانس آٹا (کلو)</label><input type="number" id="advInput" value="0"></div>
-        
+        <div class="f-group"><label>آٹا ریٹ</label><input type="number" id="rateInput" value="110"></div>
+        <div class="f-group"><label>ایڈوانس آٹا</label><input type="number" id="advInput" value="0"></div>
         <div class="checkboxes">
-            <label class="check-item"><input type="checkbox" id="checkSafai"><span>صفائی نہیں کرنی</span></label>
-            <label class="check-item"><input type="checkbox" id="checkKatoti"><span>کٹوتی نہیں کرنی</span></label>
-            <label class="check-item"><input type="checkbox" id="checkPayByFlour"><span>بل آٹے سے کاٹیں</span></label>
+            <label><input type="checkbox" id="checkSafai"> صفائی نہیں کرنی</label>
+            <label><input type="checkbox" id="checkKatoti"> کٹوتی نہیں کرنی</label>
+            <label><input type="checkbox" id="checkPayByFlour"> بل آٹے سے کاٹیں</label>
         </div>
-        
         <button class="btn-calc" onclick="calculate()">حساب کریں</button>
     </div>
 
     <div id="resPanel">
-        <div class="r-row"><span>پسائی و صفائی فیس:</span> <span id="outFees">0</span></div>
-        <div class="r-row"><span class="highlight">ٹوٹل بل:</span> <span class="highlight" id="outBill">0</span></div>
-        <div class="r-row" style="color:#2ecc71"><span>صاف آٹا (نیٹ):</span> <span id="outNet" style="font-size:20px; font-weight:bold;">0</span> کلو</div>
-        
-        <div class="btn-actions">
-            <button class="btn-green" onclick="saveRecord('Paid')">نقد وصولی (تصدیق)</button>
-            <button class="btn-blue" onclick="document.getElementById('resPanel').style.display='none'">ایڈٹ</button>
-            <button class="btn-orange" onclick="saveRecord('Khata')">ادھار کھاتہ میں ڈالیں</button>
+        <div style="display:flex; justify-content:space-between; margin-bottom:10px;"><span>کل بل:</span> <span id="outBill" style="color:var(--accent); font-size:20px; font-weight:bold;">0</span></div>
+        <div style="display:flex; justify-content:space-between;"><span>صاف آٹا:</span> <span id="outNet" style="color:#2ecc71; font-size:20px;">0</span> کلو</div>
+        <div style="margin-top:15px; display:grid; grid-template-columns: 1fr 1fr; gap:10px;">
+            <button onclick="saveRecord('Paid')" style="background:#27ae60; color:white; border:none; padding:10px; border-radius:5px; font-weight:bold; grid-column:span 2;">نقد وصولی</button>
+            <button onclick="saveRecord('Khata')" style="background:#e67e22; color:white; border:none; padding:10px; border-radius:5px; font-weight:bold;">کھاتے میں لکھیں</button>
         </div>
     </div>
+
+    <hr>
 
     <div class="tab-bar">
-        <div class="tab-btn active" onclick="openPage(event, 'pageSum')">گاہکوں کا مجموعی کھاتہ</div>
-        <div class="tab-btn" onclick="openPage(event, 'pageDaily')">روزمرہ سلپس</div>
-        <div class="tab-btn" onclick="openPage(event, 'pageReports')">رپورٹ</div>
+        <div class="tab-btn active" onclick="openPage(event, 'pageSum')">مجموعی کھاتہ</div>
+        <div class="tab-btn" onclick="openPage(event, 'pageDaily')">روزمرہ ریکارڈ</div>
     </div>
 
-    <div id="pageSum" class="tab-page active" style="overflow-x:auto;">
-        <p style="font-size: 13px; color: #666;">* یہاں ہر گاہک کا ٹوٹل حساب ایک جگہ جمع ہو کر نظر آئے گا۔</p>
-        <table id="tblSummary">
-            <thead>
-                <tr><th>گاہک کا نام</th><th>کل بل</th><th>کل وصولی</th><th>حتمی بقایا</th><th>اعمال</th></tr>
-            </thead>
-            <tbody></tbody>
-        </table>
-    </div>
-
-    <div id="pageDaily" class="tab-page" style="overflow-x:auto;">
-        <table id="tblDaily">
-            <thead>
-                <tr><th>تاریخ</th><th>نام</th><th>وزن</th><th>بل</th><th>حالت</th><th>اعمال</th></tr>
-            </thead>
-            <tbody></tbody>
-        </table>
-    </div>
-
-    <div id="pageReports" class="tab-page">
-        <div class="summary-card">
-            <div class="stat-item"><h4>کل گندم</h4><p class="stat-val" id="statWheat">0 کلو</p></div>
-            <div class="stat-item"><h4>کل نقد آمدن</h4><p class="stat-val" id="statCash">0 روپے</p></div>
-            <div class="stat-item"><h4>مارکیٹ ادھار</h4><p class="stat-val" id="statCredit" style="color:var(--danger)">0 روپے</p></div>
+    <div id="pdfContent">
+        <div id="pdfHeader" style="display:none; text-align:center;">
+            <h1 style="color:#2e7d32;">آٹا چکی مجموعی کھاتہ رپورٹ</h1>
+            <p id="pdfDateRange"></p>
         </div>
-        
+
+        <div class="no-print" style="margin-bottom:15px; display:flex; gap:10px; flex-wrap:wrap;">
+            <input type="date" id="dateFrom" onchange="renderTables()" style="padding:5px;">
+            <input type="date" id="dateTo" onchange="renderTables()" style="padding:5px;">
+            <button class="btn-pdf" onclick="downloadPDF()">📥 پی ڈی ایف ڈاؤن لوڈ کریں</button>
+        </div>
+
+        <div class="report-grid">
+            <div class="report-card"><h4>کل گندم</h4><p id="repWheat">0 کلو</p></div>
+            <div class="report-card"><h4>کل رقم</h4><p id="repMoney">0</p></div>
+            <div class="report-card"><h4>کٹوتی وزن</h4><p id="repKatWeight">0 کلو</p></div>
+            <div class="report-card"><h4>کٹوتی رقم</h4><p id="repKatCash">0</p></div>
+        </div>
+
+        <div id="pageSum" class="tab-page active">
+            <table id="tblSummary">
+                <thead><tr><th>گاہک کا نام</th><th>ٹوٹل بل</th><th>ٹوٹل وصولی</th><th>بقایا</th></tr></thead>
+                <tbody></tbody>
+            </table>
+        </div>
+
+        <div id="pageDaily" class="tab-page">
+            <table id="tblDaily">
+                <thead><tr><th>تاریخ</th><th>نام</th><th>وزن</th><th>بل</th><th>حالت</th></tr></thead>
+                <tbody></tbody>
+            </table>
+        </div>
     </div>
 </div>
 
+
+
 <script>
-    let db = JSON.parse(localStorage.getItem('atta_pro_v6')) || [];
+    let db = JSON.parse(localStorage.getItem('atta_pro_v8')) || [];
     let tempEntry = null;
 
-    function appInit() {
-        if ('serviceWorker' in navigator) {
-            navigator.serviceWorker.register('./sw.js').catch(e => console.log(e));
-        }
-        renderTables();
-    }
+    function appInit() { renderTables(); }
 
     function calculate() {
         const name = document.getElementById('custName').value.trim();
@@ -145,33 +127,30 @@
         const rate = parseFloat(document.getElementById('rateInput').value);
         const adv = parseFloat(document.getElementById('advInput').value) || 0;
 
-        if (!name || isNaN(weight)) { alert("نام اور وزن ضروری ہے!"); return; }
+        if (!name || isNaN(weight)) { alert("نام اور وزن درج کریں"); return; }
 
-        const pisai = 3.00, safai = 1.20, katotiRate = 0.050;
-        const noSafai = document.getElementById('checkSafai').checked;
-        const noKatoti = document.getElementById('checkKatoti').checked;
-        const payByFlour = document.getElementById('checkPayByFlour').checked;
+        let pisai = 3.00, safai = 1.20, kRate = 0.050;
+        let fee = (weight * pisai) + (document.getElementById('checkSafai').checked ? 0 : (weight * safai));
+        let katotiWeight = weight * kRate;
+        let katotiCashValue = katotiWeight * rate;
 
-        let fee = (weight * pisai) + (noSafai ? 0 : (weight * safai));
-        let katotiWeight = weight * katotiRate;
-        let katotiCost = noKatoti ? (katotiWeight * rate) : 0;
-        let totalBill = fee + katotiCost;
-        let netFlour = weight - (noKatoti ? 0 : katotiWeight) - adv;
+        let isKatotiInCash = document.getElementById('checkKatoti').checked;
+        let finalBill = fee + (isKatotiInCash ? katotiCashValue : 0);
+        let netFlour = weight - (isKatotiInCash ? 0 : katotiWeight) - adv;
 
-        if (payByFlour) {
-            netFlour -= (totalBill / rate);
-            totalBill = 0;
+        if (document.getElementById('checkPayByFlour').checked) {
+            netFlour -= (finalBill / rate);
+            finalBill = 0;
         }
 
         tempEntry = {
-            id: Date.now(),
-            name, weight, totalBill, 
-            paid: 0, balance: totalBill,
-            netFlour, date: new Date().toLocaleDateString('en-GB')
+            id: Date.now(), name, weight, totalBill: finalBill,
+            katWeightTaken: (isKatotiInCash ? 0 : katotiWeight),
+            katCashTaken: (isKatotiInCash ? katotiCashValue : 0),
+            paid: 0, balance: finalBill, date: new Date().toISOString().split('T')[0]
         };
 
-        document.getElementById('outFees').innerText = fee.toFixed(0);
-        document.getElementById('outBill').innerText = totalBill.toFixed(0);
+        document.getElementById('outBill').innerText = finalBill.toFixed(0);
         document.getElementById('outNet').innerText = netFlour.toFixed(2);
         document.getElementById('resPanel').style.display = 'block';
     }
@@ -179,106 +158,68 @@
     function saveRecord(status) {
         if (!tempEntry) return;
         tempEntry.status = status;
-        if (status === 'Paid') {
-            tempEntry.paid = tempEntry.totalBill;
-            tempEntry.balance = 0;
-        }
+        if (status === 'Paid') { tempEntry.paid = tempEntry.totalBill; tempEntry.balance = 0; }
         db.push(tempEntry);
-        sync();
-        resetForm();
-    }
-
-    function sync() {
-        localStorage.setItem('atta_pro_v6', JSON.stringify(db));
+        localStorage.setItem('atta_pro_v8', JSON.stringify(db));
+        document.getElementById('resPanel').style.display = 'none';
         renderTables();
     }
 
     function renderTables() {
+        const from = document.getElementById('dateFrom').value;
+        const to = document.getElementById('dateTo').value;
         const dailyBody = document.querySelector('#tblDaily tbody');
         const summaryBody = document.querySelector('#tblSummary tbody');
-        const listData = document.getElementById('customerList');
-        
-        dailyBody.innerHTML = ''; summaryBody.innerHTML = ''; listData.innerHTML = '';
+        dailyBody.innerHTML = ''; summaryBody.innerHTML = '';
 
-        let totals = { w: 0, cash: 0, cred: 0 };
-        let customerMap = {}; // Aggregate data here
+        let stats = { w:0, bill:0, katW:0, katC:0 };
+        let customerMap = {};
 
-        db.sort((a,b) => b.id - a.id).forEach(item => {
-            // Stats calculation
-            totals.w += item.weight;
-            totals.cash += item.paid;
-            totals.cred += item.balance;
+        db.forEach(item => {
+            if ((from && item.date < from) || (to && item.date > to)) return;
 
-            // Daily Slips Table
-            dailyBody.innerHTML += `<tr>
-                <td>${item.date}</td><td>${item.name}</td><td>${item.weight}</td>
-                <td>${item.totalBill.toFixed(0)}</td>
-                <td><span class="badge ${item.status==='Paid'?'badge-paid':'badge-khata'}">${item.status==='Paid'?'نقد':'ادھار'}</span></td>
-                <td><button onclick="delItem(${item.id})" style="color:red; border:none; background:none; cursor:pointer;">×</button></td>
-            </tr>`;
+            stats.w += item.weight; stats.bill += item.totalBill;
+            stats.katW += (item.katWeightTaken || 0); stats.katC += (item.katCashTaken || 0);
 
-            // Aggregate Data by Name (Customer Ledger)
-            let n = item.name.toLowerCase().trim();
-            if (!customerMap[n]) {
-                customerMap[n] = { name: item.name, bill: 0, paid: 0, bal: 0 };
-            }
-            customerMap[n].bill += item.totalBill;
-            customerMap[n].paid += item.paid;
-            customerMap[n].bal += item.balance;
+            dailyBody.innerHTML += `<tr><td>${item.date}</td><td>${item.name}</td><td>${item.weight}</td><td>${item.totalBill.toFixed(0)}</td><td>${item.status==='Paid'?'نقد':'ادھار'}</td></tr>`;
+
+            let n = item.name.trim();
+            if (!customerMap[n]) { customerMap[n] = { bill:0, paid:0, bal:0 }; }
+            customerMap[n].bill += item.totalBill; customerMap[n].paid += item.paid; customerMap[n].bal += item.balance;
         });
 
-        // Fill Customer Summary Table (Unified Record)
-        Object.values(customerMap).forEach(c => {
-            listData.innerHTML += `<option value="${c.name}">`;
-            summaryBody.innerHTML += `<tr>
-                <td style="font-weight:bold">${c.name}</td>
-                <td>${c.bill.toFixed(0)}</td>
-                <td>${c.paid.toFixed(0)}</td>
-                <td style="color:${c.bal>0?'red':'green'}; font-weight:bold">${c.bal.toFixed(0)}</td>
-                <td><button onclick="payKhata('${c.name}')" class="badge-paid" style="border:none; cursor:pointer; padding:5px;">وصولی درج کریں</button></td>
-            </tr>`;
+        Object.keys(customerMap).forEach(name => {
+            let c = customerMap[name];
+            summaryBody.innerHTML += `<tr><td>${name}</td><td>${c.bill.toFixed(0)}</td><td>${c.paid.toFixed(0)}</td><td>${c.bal.toFixed(0)}</td></tr>`;
         });
 
-        document.getElementById('statWheat').innerText = totals.w.toFixed(1) + " کلو";
-        document.getElementById('statCash').innerText = totals.cash.toFixed(0) + " روپے";
-        document.getElementById('statCredit').innerText = totals.cred.toFixed(0) + " روپے";
+        document.getElementById('repWheat').innerText = stats.w.toFixed(1) + " کلو";
+        document.getElementById('repMoney').innerText = stats.bill.toFixed(0);
+        document.getElementById('repKatWeight').innerText = stats.katW.toFixed(2) + " کلو";
+        document.getElementById('repKatCash').innerText = stats.katC.toFixed(0);
     }
 
-    function payKhata(custName) {
-        let amount = prompt(`گاہک "${custName}" سے کتنی رقم وصول ہوئی؟`);
-        amount = parseFloat(amount);
-        if (isNaN(amount) || amount <= 0) return;
-
-        // Apply payment to oldest pending entries for this customer
-        let remaining = amount;
-        db.filter(i => i.name.toLowerCase().trim() === custName.toLowerCase().trim() && i.balance > 0)
-          .sort((a,b) => a.id - b.id)
-          .forEach(item => {
-              if (remaining <= 0) return;
-              let pay = Math.min(remaining, item.balance);
-              item.paid += pay;
-              item.balance -= pay;
-              remaining -= pay;
-              if (item.balance <= 0) item.status = 'Paid';
-          });
+    // PDF فنکشن
+    function downloadPDF() {
+        const element = document.getElementById('pdfContent');
+        const header = document.getElementById('pdfHeader');
+        const from = document.getElementById('dateFrom').value || "ابتدا";
+        const to = document.getElementById('dateTo').value || "آج";
         
-        sync();
-        alert("وصولی درج کر لی گئی۔");
-    }
+        document.getElementById('pdfDateRange').innerText = `رپورٹ دورانیہ: ${from} تا ${to}`;
+        header.style.display = 'block'; // PDF کے لیے ہیڈر دکھائیں
 
-    function delItem(id) {
-        if (confirm("کیا آپ یہ سلپ حذف کرنا چاہتے ہیں؟")) {
-            db = db.filter(i => i.id !== id);
-            sync();
-        }
-    }
+        const opt = {
+            margin: 10,
+            filename: `Chaki_Report_${to}.pdf`,
+            image: { type: 'jpeg', quality: 0.98 },
+            html2canvas: { scale: 2, useCORS: true },
+            jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
+        };
 
-    function resetForm() {
-        document.getElementById('custName').value = '';
-        document.getElementById('wtInput').value = '';
-        document.getElementById('advInput').value = '0';
-        document.getElementById('resPanel').style.display = 'none';
-        tempEntry = null;
+        html2pdf().set(opt).from(element).save().then(() => {
+            header.style.display = 'none'; // ڈاؤن لوڈ کے بعد واپس چھپا دیں
+        });
     }
 
     function openPage(evt, pageId) {
@@ -288,6 +229,5 @@
         evt.currentTarget.classList.add('active');
     }
 </script>
-
 </body>
 </html>
