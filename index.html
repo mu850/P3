@@ -3,220 +3,268 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>آٹا چکی ڈیجیٹل رجسٹر پرو</title>
-    <link rel="manifest" href="manifest.json">
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+    <title>آٹا چکی رجسٹر پرو پلس</title>
     <style>
-        :root { --primary: #2e7d32; --dark: #263238; --accent: #f1c40f; --danger: #d32f2f; --blue: #1976d2; }
-        body { font-family: 'Segoe UI', Tahoma, sans-serif; background: #f4f7f6; margin: 0; direction: rtl; padding: 10px; }
-        .container { background: white; max-width: 950px; margin: auto; border-radius: 15px; box-shadow: 0 5px 20px rgba(0,0,0,0.1); padding: 15px; }
-        h2, h3 { text-align: center; color: var(--primary); border-bottom: 2px solid #eee; padding-bottom: 10px; }
+        :root { --primary: #2e7d32; --dark: #263238; --accent: #f1c40f; --danger: #d32f2f; --blue: #1565c0; }
+        body { font-family: 'Segoe UI', Arial, sans-serif; background: #f0f4f7; padding: 10px; margin: 0; direction: rtl; }
+        .container { background: white; max-width: 900px; margin: auto; border-radius: 15px; box-shadow: 0 5px 25px rgba(0,0,0,0.1); padding: 15px; }
+        h2, h3 { text-align: center; color: var(--primary); margin-bottom: 10px; border-bottom: 2px solid #eee; padding-bottom: 5px; }
         
-        /* Inputs */
-        .form-box { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 10px; background: #fff; padding: 15px; border-radius: 10px; border: 1px solid #ddd; margin-bottom: 20px; }
-        input { padding: 10px; border: 1px solid #ccc; border-radius: 8px; font-size: 15px; }
-        .btn-calc { grid-column: 1 / -1; padding: 12px; background: var(--primary); color: white; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; }
+        .form-box { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 10px; background: #fff; padding: 15px; border: 1px solid #ddd; border-radius: 10px; margin-bottom: 20px; }
+        input { padding: 10px; border: 1px solid #ccc; border-radius: 6px; font-size: 14px; }
+        .btn-main { grid-column: 1 / -1; padding: 12px; background: var(--primary); color: white; border: none; border-radius: 6px; font-weight: bold; cursor: pointer; }
 
-        /* Stats Cards */
-        .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 10px; margin-bottom: 15px; }
-        .stat-card { background: var(--dark); color: white; padding: 15px; border-radius: 10px; text-align: center; border-bottom: 4px solid var(--accent); }
+        /* Stats */
+        .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 10px; margin-bottom: 20px; }
+        .stat-card { background: var(--dark); color: white; padding: 12px; border-radius: 8px; text-align: center; border-bottom: 4px solid var(--accent); }
         .stat-card p { font-size: 18px; font-weight: bold; color: var(--accent); margin: 5px 0; }
-        .stat-card span { font-size: 13px; color: #4caf50; display: block; margin-top: 5px; }
 
         /* Tabs */
-        .tabs { display: flex; border-bottom: 2px solid #ddd; margin-top: 20px; background: #eee; overflow-x: auto; }
-        .tab-btn { flex: 1; padding: 12px; text-align: center; cursor: pointer; font-weight: bold; color: #666; white-space: nowrap; }
-        .tab-btn.active { border-bottom: 4px solid var(--primary); color: var(--primary); background: #fff; }
-        .tab-content { display: none; padding-top: 15px; }
+        .tabs { display: flex; border-bottom: 2px solid #ddd; margin-bottom: 10px; background: #eee; }
+        .tab { flex: 1; padding: 12px; text-align: center; cursor: pointer; font-weight: bold; color: #666; }
+        .tab.active { border-bottom: 4px solid var(--primary); color: var(--primary); background: #fff; }
+        .tab-content { display: none; }
         .tab-content.active { display: block; }
 
-        table { width: 100%; border-collapse: collapse; margin-top: 10px; }
-        th, td { border: 1px solid #ddd; padding: 8px; text-align: center; font-size: 14px; }
+        table { width: 100%; border-collapse: collapse; margin-top: 5px; background: white; }
+        th, td { border: 1px solid #ddd; padding: 10px; text-align: center; font-size: 13px; }
         th { background: #37474f; color: white; }
-        .btn-s { padding: 5px 10px; border-radius: 4px; border: none; cursor: pointer; color: white; margin: 2px; font-size: 12px; }
+        .btn-pay { background: var(--blue); color: white; border: none; padding: 5px 10px; border-radius: 4px; cursor: pointer; }
+        .btn-del { color: var(--danger); font-weight: bold; border: none; background: none; cursor: pointer; font-size: 18px; }
         
-        #resPanel { background: var(--dark); color: white; padding: 15px; border-radius: 10px; margin-top: 15px; display: none; }
-        .res-row { display: flex; justify-content: space-between; padding: 5px 0; border-bottom: 1px solid #444; }
+        #receipt { background: #fff9c4; padding: 15px; border-radius: 10px; margin-bottom: 20px; border: 2px dashed var(--primary); display: none; }
     </style>
 </head>
-<body onload="initApp()">
+<body onload="init()">
 
 <div class="container">
-    <h2>آٹا چکی اسمارٹ رجسٹر</h2>
+    <h2>آٹا چکی ڈیجیٹل رجسٹر</h2>
+
+    <div style="background:#fff3e0; padding:10px; border-radius:8px; margin-bottom:15px; border:1px solid #ffe0b2; display:flex; justify-content:space-between; align-items:center;">
+        <span style="font-size:12px; font-weight:bold; color:#e65100;">ڈیٹا محفوظ رکھنے کے لیے یہاں کلک کریں:</span>
+        <div>
+            <button onclick="exportData()" style="background:#e65100; color:white; border:none; padding:8px 12px; border-radius:5px; cursor:pointer; font-weight:bold;">📤 فائل محفوظ کریں</button>
+            <button onclick="importData()" style="background:#5d4037; color:white; border:none; padding:8px 12px; border-radius:5px; cursor:pointer; font-weight:bold;">📥 فائل لوڈ کریں</button>
+        </div>
+    </div>
 
     <div class="form-box">
-        <h3 style="grid-column: 1/-1; margin:0; font-size:16px;">گندم پسائی انٹری</h3>
+        <h3 style="grid-column: 1/-1; border:none; color:var(--primary); margin:0;">گندم پسائی</h3>
         <input type="text" id="cName" placeholder="گاہک کا نام">
-        <input type="number" id="wWeight" placeholder="گندم وزن (کلو)">
-        <input type="number" id="aRate" value="120" placeholder="آٹا ریٹ">
-        <div style="grid-column: 1/-1; display:flex; gap:10px; flex-wrap:wrap; background:#f9f9f9; padding:10px; border-radius:8px;">
+        <input type="number" id="wWeight" placeholder="وزن (کلو)">
+        <input type="number" id="aRate" value="120">
+        <div style="grid-column: 1/-1; display:flex; gap:10px; font-size:12px;">
             <label><input type="checkbox" id="noCln"> صفائی نہیں</label>
             <label><input type="checkbox" id="noKat"> کٹوتی نہیں</label>
             <label><input type="checkbox" id="payByA"> بل بذریعہ آٹا</label>
         </div>
-        <button class="btn-calc" onclick="calculateBill()">حساب کریں اور رسید دیکھیں</button>
+        <button class="btn-main" onclick="calculate()">حساب کتاب کریں</button>
     </div>
 
-    <div id="resPanel">
-        <div class="res-row"><span>ٹوٹل بل:</span> <span id="outB">0</span></div>
-        <div class="res-row"><span>کٹوتی وزن:</span> <span id="outKatW">0</span> کلو</div>
-        <div class="res-row"><span>صاف آٹا:</span> <span id="outNet">0</span> کلو</div>
-        <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-top:10px;">
-            <button onclick="saveData('Paid')" style="background:#27ae60; color:white; grid-column:span 2; padding:10px; border:none; border-radius:5px;">نقد وصولی (Confirm)</button>
-            <button onclick="saveData('Khata')" style="background:#e67e22; color:white; padding:10px; border:none; border-radius:5px;">ادھار کھاتہ (Confirm)</button>
+    <div id="receipt">
+        <div style="display:flex; justify-content:space-between; font-weight:bold; margin-bottom:10px;">
+            <span>بل: <span id="rBill">0</span> روپے</span>
+            <span>صاف آٹا: <span id="rNet">0</span> کلو</span>
         </div>
-    </div>
-
-    <hr>
-
-    <div class="form-box" style="border-color: var(--blue);">
-        <h3 style="grid-column: 1/-1; margin:0; font-size:16px; color:var(--blue);">اکٹھا آٹا فروخت (کھاتہ)</h3>
-        <input type="text" id="saleName" placeholder="خریدار کا نام">
-        <input type="number" id="saleWeight" placeholder="آٹا وزن (کلو)">
-        <input type="number" id="saleRate" value="120" placeholder="قیمت فی کلو">
-        <button class="btn-calc" style="background:var(--blue);" onclick="saveFlourSale()">فروخت کا ریکارڈ سیو کریں</button>
+        <div style="display:grid; grid-template-columns: 1fr 1fr; gap:10px;">
+            <button onclick="saveEntry('Paid')" style="background:var(--primary); color:white; padding:10px; border:none; border-radius:5px;">نقد وصولی</button>
+            <button onclick="saveEntry('Credit')" style="background:var(--danger); color:white; padding:10px; border:none; border-radius:5px;">ادھار کھاتہ</button>
+        </div>
     </div>
 
     <div class="tabs">
-        <div class="tab-btn active" onclick="switchTab(event, 'tabDaily')">پسائی ریکارڈ</div>
-        <div class="tab-btn" onclick="switchTab(event, 'tabSale')">آٹا فروخت</div>
-        <div class="tab-btn" onclick="switchTab(event, 'tabStats')">مجموعی رپورٹ</div>
+        <div class="tab active" onclick="openTab(event, 'tab1')">روزمرہ</div>
+        <div class="tab" onclick="openTab(event, 'tab2')">ادھار کھاتہ</div>
+        <div class="tab" onclick="openTab(event, 'tab3')">رپورٹ</div>
     </div>
 
-    <div id="tabDaily" class="tab-content active">
-        <table id="dailyTbl">
-            <thead><tr><th>تاریخ/وقت</th><th>نام</th><th>وزن</th><th>بل</th><th>حالت</th><th>حذف</th></tr></thead>
-            <tbody></tbody>
+    <div id="tab1" class="tab-content active">
+        <table>
+            <thead><tr><th>نام</th><th>وزن</th><th>بل</th><th>حالت</th><th>حذف</th></tr></thead>
+            <tbody id="dailyBody"></tbody>
         </table>
     </div>
 
-    <div id="tabSale" class="tab-content">
-        <table id="saleTbl">
-            <thead><tr><th>تاریخ/وقت</th><th>خریدار</th><th>وزن</th><th>ٹوٹل بل</th><th>حالت</th><th>اعمال</th></tr></thead>
-            <tbody></tbody>
+    <div id="tab2" class="tab-content">
+        <table>
+            <thead><tr><th>نام</th><th>بقایا ادھار</th><th>ایکشن</th></tr></thead>
+            <tbody id="khataBody"></tbody>
         </table>
     </div>
 
-    <div id="tabStats" class="tab-content">
+    <div id="tab3" class="tab-content">
         <div class="stats-grid">
-            <div class="stat-card">
-                <h4>کل گندم (پسائی)</h4>
-                <p id="statW">0 کلو</p>
-                <span id="statWMan">0 من</span>
-            </div>
-            <div class="stat-card">
-                <h4>کل آٹا فروخت</h4>
-                <p id="statSW">0 کلو</p>
-                <span id="statSWMan">0 من</span>
-            </div>
-            <div class="stat-card"><h4>کل نقد وصولی</h4><p id="statC">0</p></div>
-            <div class="stat-card"><h4>ٹوٹل مارکیٹ ادھار</h4><p id="statP" style="color:red">0</p></div>
+            <div class="stat-card"><h4>کل گندم</h4><p id="sW">0</p><span id="sM" style="font-size:12px;">0 من</span></div>
+            <div class="stat-card"><h4>نقد آمدن</h4><p id="sC">0</p></div>
+            <div class="stat-card"><h4>مارکیٹ ادھار</h4><p id="sP">0</p></div>
         </div>
+    </div>
+
+    <br><hr>
+    <div class="form-box" style="border: 2px solid var(--blue); margin-top:20px;">
+        <h3 style="grid-column:1/-1; border:none; color:var(--blue); margin:0;">آٹا ادھار رجسٹر (الگ ریکارڈ)</h3>
+        <input type="text" id="sName" placeholder="خریدار کا نام">
+        <input type="number" id="sWeight" placeholder="آٹا وزن (کلو)">
+        <input type="number" id="sRate" value="130">
+        <button class="btn-main" style="background:var(--blue);" onclick="saveSale()">آٹا ادھار سیو کریں</button>
+    </div>
+
+    <div style="overflow-x:auto;">
+        <table id="saleTbl">
+            <thead><tr style="background:var(--blue); color:white;"><th>تاریخ</th><th>نام</th><th>وزن</th><th>بقایا</th><th>ایکشن</th></tr></thead>
+            <tbody id="saleBody"></tbody>
+        </table>
     </div>
 </div>
 
 <script>
-    let db = JSON.parse(localStorage.getItem('chaki_v14')) || [];
-    let saleDb = JSON.parse(localStorage.getItem('chaki_sales_v14')) || [];
-    let tempEntry = null;
+    let pisaiDB = JSON.parse(localStorage.getItem('PISAI_DATA')) || [];
+    let salesDB = JSON.parse(localStorage.getItem('SALES_DATA')) || [];
+    let temp = null;
 
-    function initApp() { renderAll(); }
+    function init() { render(); }
 
-    function calculateBill() {
-        const name = document.getElementById('cName').value.trim();
-        const weight = parseFloat(document.getElementById('wWeight').value) || 0;
-        const rate = parseFloat(document.getElementById('aRate').value) || 120;
-        if (!name || weight <= 0) return alert("نام اور وزن لکھیں");
+    function calculate() {
+        const name = document.getElementById('cName').value;
+        const weight = parseFloat(document.getElementById('wWeight').value);
+        const rate = parseFloat(document.getElementById('aRate').value);
+        if(!name || !weight) return alert("نام اور وزن درج کریں");
 
-        const katW = document.getElementById('noKat').checked ? 0 : (weight * 0.050);
-        const bill = (weight * 4.2); // پسائی + صفائی ریٹ ملا کر
-        
-        tempEntry = {
-            id: Date.now(), name, weight, finalBill: bill,
-            katW: katW, paid: 0, balance: bill,
-            date: new Date().toLocaleString('ur-PK'), status: 'Khata'
-        };
+        let fee = weight * 4.2;
+        let kat = document.getElementById('noKat').checked ? 0 : (weight * 0.05);
+        let net = weight - kat - (document.getElementById('payByA').checked ? (fee/rate) : 0);
 
-        document.getElementById('outB').innerText = bill.toFixed(0);
-        document.getElementById('outKatW').innerText = katW.toFixed(2);
-        document.getElementById('resPanel').style.display = 'block';
+        temp = { id: Date.now(), name, weight, bill: fee, kat, paid: 0, bal: fee, date: new Date().toLocaleString('ur-PK') };
+        document.getElementById('rBill').innerText = fee.toFixed(0);
+        document.getElementById('rNet').innerText = net.toFixed(2);
+        document.getElementById('receipt').style.display = 'block';
     }
 
-    function saveData(status) {
-        if (!confirm("کیا آپ سیو کرنا چاہتے ہیں؟")) return;
-        if (status === 'Paid') { tempEntry.paid = tempEntry.finalBill; tempEntry.balance = 0; tempEntry.status = 'Paid'; }
-        db.push(tempEntry);
-        localStorage.setItem('chaki_v14', JSON.stringify(db));
-        document.getElementById('resPanel').style.display = 'none';
-        renderAll();
+    function saveEntry(status) {
+        if(status === 'Paid') { temp.paid = temp.bill; temp.bal = 0; }
+        pisaiDB.push(temp);
+        localStorage.setItem('PISAI_DATA', JSON.stringify(pisaiDB));
+        document.getElementById('receipt').style.display = 'none';
+        render();
     }
 
-    function saveFlourSale() {
-        const name = document.getElementById('saleName').value.trim();
-        const weight = parseFloat(document.getElementById('saleWeight').value) || 0;
-        const rate = parseFloat(document.getElementById('saleRate').value) || 120;
-        if (!name || weight <= 0) return alert("معلومات مکمل کریں");
+    function saveSale() {
+        const name = document.getElementById('sName').value;
+        const weight = parseFloat(document.getElementById('sWeight').value);
+        const rate = parseFloat(document.getElementById('sRate').value);
+        if(!name || !weight) return alert("نام اور وزن لکھیں");
 
-        if(!confirm("آٹا فروخت کا ریکارڈ ادھار کھاتے میں سیو کریں؟")) return;
-
-        const saleEntry = {
-            id: Date.now(), name, weight, totalBill: (weight * rate),
-            paid: 0, balance: (weight * rate), date: new Date().toLocaleString('ur-PK'), status: 'Khata'
-        };
-        saleDb.push(saleEntry);
-        localStorage.setItem('chaki_sales_v14', JSON.stringify(saleDb));
-        renderAll();
+        let sale = { id: Date.now(), name, weight, bill: weight*rate, paid: 0, bal: weight*rate, date: new Date().toLocaleString('ur-PK') };
+        salesDB.push(sale);
+        localStorage.setItem('SALES_DATA', JSON.stringify(salesDB));
+        render();
     }
 
-    function renderAll() {
-        // Daily Pisai
-        const dBody = document.querySelector('#dailyTbl tbody');
+    function render() {
+        // Pisai Daily
+        const dBody = document.getElementById('dailyBody');
         dBody.innerHTML = '';
-        db.sort((a,b)=>b.id-a.id).forEach(i => {
-            dBody.innerHTML += `<tr><td>${i.date}</td><td>${i.name}</td><td>${i.weight}</td><td>${i.finalBill.toFixed(0)}</td><td style="color:${i.status==='Paid'?'green':'orange'}">${i.status==='Paid'?'نقد':'ادھار'}</td><td><button class="btn-s" style="background:red" onclick="delP(${i.id})">×</button></td></tr>`;
+        pisaiDB.slice().reverse().forEach(i => {
+            dBody.innerHTML += `<tr><td>${i.name}</td><td>${i.weight}</td><td>${i.bill.toFixed(0)}</td><td style="color:${i.bal>0?'red':'green'}">${i.bal>0?'ادھار':'نقد'}</td><td><button class="btn-del" onclick="del(${i.id},'p')">×</button></td></tr>`;
         });
 
-        // Flour Sales
-        const sBody = document.querySelector('#saleTbl tbody');
+        // Khata
+        const kBody = document.getElementById('khataBody');
+        kBody.innerHTML = '';
+        let groups = {};
+        pisaiDB.forEach(i => { if(i.bal > 0) groups[i.name] = (groups[i.name] || 0) + i.bal; });
+        for(let n in groups) {
+            kBody.innerHTML += `<tr><td>${n}</td><td style="color:red; font-weight:bold;">${groups[n].toFixed(0)}</td><td><button class="btn-pay" onclick="receivePisai('${n}')">وصول</button></td></tr>`;
+        }
+
+        // Sales Table
+        const sBody = document.getElementById('saleBody');
         sBody.innerHTML = '';
-        saleDb.sort((a,b)=>b.id-a.id).forEach(i => {
-            sBody.innerHTML += `<tr><td>${i.date}</td><td>${i.name}</td><td>${i.weight}</td><td>${i.totalBill.toFixed(0)}</td><td style="color:red">${i.balance.toFixed(0)} بقایا</td><td><button class="btn-s" style="background:green" onclick="paySale(${i.id})">وصول</button><button class="btn-s" style="background:red" onclick="delS(${i.id})">×</button></td></tr>`;
+        salesDB.slice().reverse().forEach(i => {
+            sBody.innerHTML += `<tr><td>${i.date.split(',')[0]}</td><td>${i.name}</td><td>${i.weight}</td><td style="color:red">${i.bal.toFixed(0)}</td><td><button class="btn-pay" onclick="receiveSale(${i.id})">وصول</button><button class="btn-del" onclick="del(${i.id},'s')">×</button></td></tr>`;
         });
 
-        calculateStats();
+        updateStats();
     }
 
-    function calculateStats() {
-        let tw = 0, sw = 0, tc = 0, tp = 0;
-        db.forEach(i => { tw += i.weight; tc += i.paid; tp += i.balance; });
-        saleDb.forEach(i => { sw += i.weight; tc += i.paid; tp += i.balance; });
-
-        document.getElementById('statW').innerText = tw.toFixed(1) + " کلو";
-        document.getElementById('statWMan').innerText = (tw / 40).toFixed(2) + " من";
-        
-        document.getElementById('statSW').innerText = sw.toFixed(1) + " کلو";
-        document.getElementById('statSWMan').innerText = (sw / 40).toFixed(2) + " من";
-
-        document.getElementById('statC').innerText = tc.toFixed(0);
-        document.getElementById('statP').innerText = tp.toFixed(0);
-    }
-
-    function paySale(id) {
-        let amt = prompt("وصول کی گئی رقم لکھیں:");
+    function receivePisai(name) {
+        let amt = parseFloat(prompt(`${name} سے وصول کی گئی رقم:`));
         if(!amt) return;
-        saleDb.forEach(i => { if(i.id === id) { i.paid += parseFloat(amt); i.balance -= parseFloat(amt); } });
-        localStorage.setItem('chaki_sales_v14', JSON.stringify(saleDb));
-        renderAll();
+        pisaiDB.filter(i => i.name === name && i.bal > 0).forEach(i => {
+            let take = Math.min(amt, i.bal);
+            i.paid += take; i.bal -= take; amt -= take;
+        });
+        localStorage.setItem('PISAI_DATA', JSON.stringify(pisaiDB));
+        render();
     }
 
-    function delP(id) { if(confirm("حذف کریں؟")) { db = db.filter(i=>i.id!==id); localStorage.setItem('chaki_v14', JSON.stringify(db)); renderAll(); } }
-    function delS(id) { if(confirm("حذف کریں؟")) { saleDb = saleDb.filter(i=>i.id!==id); localStorage.setItem('chaki_sales_v14', JSON.stringify(saleDb)); renderAll(); } }
+    function receiveSale(id) {
+        let amt = parseFloat(prompt("وصولی رقم درج کریں:"));
+        if(!amt) return;
+        salesDB.forEach(i => { if(i.id === id) { i.paid += amt; i.bal -= amt; } });
+        localStorage.setItem('SALES_DATA', JSON.stringify(salesDB));
+        render();
+    }
 
-    function switchTab(e, id) {
+    function del(id, type) {
+        if(!confirm("حذف کریں؟")) return;
+        if(type === 'p') pisaiDB = pisaiDB.filter(i => i.id !== id);
+        else salesDB = salesDB.filter(i => i.id !== id);
+        localStorage.setItem('PISAI_DATA', JSON.stringify(pisaiDB));
+        localStorage.setItem('SALES_DATA', JSON.stringify(salesDB));
+        render();
+    }
+
+    function updateStats() {
+        let w = 0, c = 0, p = 0;
+        pisaiDB.forEach(i => { w += i.weight; c += i.paid; p += i.bal; });
+        salesDB.forEach(i => { c += i.paid; p += i.bal; });
+        document.getElementById('sW').innerText = w.toFixed(1) + " کلو";
+        document.getElementById('sM').innerText = (w/40).toFixed(2) + " من";
+        document.getElementById('sC').innerText = c.toFixed(0);
+        document.getElementById('sP').innerText = p.toFixed(0);
+    }
+
+    function openTab(e, id) {
         document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
-        document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+        document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
         document.getElementById(id).classList.add('active');
         e.currentTarget.classList.add('active');
+    }
+
+    // --- مضبوط بیک اپ سسٹم ---
+    function exportData() {
+        const allData = { 
+            pisai: JSON.parse(localStorage.getItem('PISAI_DATA')) || [], 
+            sales: JSON.parse(localStorage.getItem('SALES_DATA')) || [] 
+        };
+        const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(allData));
+        const downloadAnchorNode = document.createElement('a');
+        downloadAnchorNode.setAttribute("href", dataStr);
+        downloadAnchorNode.setAttribute("download", "chaki_full_backup.json");
+        document.body.appendChild(downloadAnchorNode);
+        downloadAnchorNode.click();
+        downloadAnchorNode.remove();
+        alert("بیک اپ فائل ڈاؤن لوڈ ہو گئی ہے۔ اسے محفوظ رکھیں!");
+    }
+
+    function importData() {
+        const input = document.createElement('input');
+        input.type = 'file';
+        input.onchange = e => {
+            const file = e.target.files[0];
+            const reader = new FileReader();
+            reader.readAsText(file);
+            reader.onload = event => {
+                const imported = JSON.parse(event.target.result);
+                if(confirm("کیا آپ پرانا ڈیٹا لوڈ کرنا چاہتے ہیں؟ موجودہ ریکارڈ ختم ہو جائے گا۔")) {
+                    localStorage.setItem('PISAI_DATA', JSON.stringify(imported.pisai));
+                    localStorage.setItem('SALES_DATA', JSON.stringify(imported.sales));
+                    location.reload(); // پیج ری فریش کر کے ڈیٹا لوڈ کرنا
+                }
+            };
+        };
+        input.click();
     }
 </script>
 </body>
