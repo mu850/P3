@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>آٹا چکی رجسٹر پرو پلس v15</title>
+    <title>آٹا چکی رجسٹر پرو پلس v16</title>
     <style>
         :root { --primary: #2e7d32; --dark: #263238; --accent: #f1c40f; --danger: #d32f2f; --blue: #1565c0; }
         body { font-family: 'Segoe UI', Arial, sans-serif; background: #f0f4f7; padding: 10px; margin: 0; direction: rtl; }
@@ -11,7 +11,7 @@
         h2, h3 { text-align: center; color: var(--primary); margin-bottom: 10px; border-bottom: 2px solid #eee; padding-bottom: 5px; }
         
         .form-box { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 10px; background: #fff; padding: 15px; border: 1px solid #ddd; border-radius: 10px; margin-bottom: 20px; }
-        input { padding: 10px; border: 1px solid #ccc; border-radius: 6px; font-size: 14px; }
+        input { padding: 10px; border: 1px solid #ccc; border-radius: 6px; font-size: 14px; width: 90%; }
         .btn-main { grid-column: 1 / -1; padding: 12px; background: var(--primary); color: white; border: none; border-radius: 6px; font-weight: bold; cursor: pointer; }
 
         .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap: 10px; margin-bottom: 20px; }
@@ -40,9 +40,9 @@
     <h2>آٹا چکی ڈیجیٹل رجسٹر</h2>
 
     <div style="background:#fff3e0; padding:10px; border-radius:8px; margin-bottom:15px; border:1px solid #ffe0b2; display:flex; justify-content:space-between; align-items:center;">
-        <span style="font-size:12px; font-weight:bold; color:#e65100;">ڈیٹا کی حفاظت کے لیے:</span>
+        <span style="font-size:12px; font-weight:bold; color:#e65100;">ڈیٹا بیک اپ:</span>
         <div>
-            <button onclick="exportData()" style="background:#e65100; color:white; border:none; padding:8px 12px; border-radius:5px; cursor:pointer;">📤 بیک اپ فائل</button>
+            <button onclick="exportData()" style="background:#e65100; color:white; border:none; padding:8px 12px; border-radius:5px; cursor:pointer;">📤 فائل محفوظ کریں</button>
             <button onclick="importData()" style="background:#5d4037; color:white; border:none; padding:8px 12px; border-radius:5px; cursor:pointer;">📥 ری اسٹور</button>
         </div>
     </div>
@@ -50,8 +50,8 @@
     <div class="form-box">
         <h3 style="grid-column: 1/-1; border:none; color:var(--primary); margin:0;">گندم پسائی</h3>
         <input type="text" id="cName" placeholder="گاہک کا نام">
-        <input type="number" id="wWeight" placeholder="وزن (کلو)">
-        <input type="number" id="aRate" value="120">
+        <input type="number" id="wWeight" placeholder="گندم وزن (کلو)">
+        <input type="number" id="aRate" value="120" placeholder="آٹا ریٹ">
         <div style="grid-column: 1/-1; display:flex; gap:10px; font-size:12px;">
             <label><input type="checkbox" id="noCln"> صفائی نہیں</label>
             <label><input type="checkbox" id="noKat"> کٹوتی نہیں</label>
@@ -61,13 +61,17 @@
     </div>
 
     <div id="receipt">
-        <div style="display:flex; justify-content:space-between; font-weight:bold; margin-bottom:10px;">
-            <span>بل: <span id="rBill">0</span> روپے</span>
+        <h4 style="text-align:center; margin:0 0 10px 0;">عارضی رسید</h4>
+        <div style="display:flex; justify-content:space-between; font-weight:bold; margin-bottom:10px; border-bottom:1px solid #ccc; padding-bottom:5px;">
+            <span>نقد بل: <span id="rBill">0</span> روپے</span>
             <span>صاف آٹا: <span id="rNet">0</span> کلو</span>
         </div>
+        <div style="font-size:12px; margin-bottom:10px;">
+            کٹوتی وزن: <span id="rKat">0</span> کلو
+        </div>
         <div style="display:grid; grid-template-columns: 1fr 1fr; gap:10px;">
-            <button onclick="saveEntry('Paid')" style="background:var(--primary); color:white; padding:10px; border:none; border-radius:5px;">نقد وصولی</button>
-            <button onclick="saveEntry('Credit')" style="background:var(--danger); color:white; padding:10px; border:none; border-radius:5px;">ادھار کھاتہ</button>
+            <button onclick="saveEntry('Paid')" style="background:var(--primary); color:white; padding:10px; border:none; border-radius:5px; font-weight:bold;">نقد وصولی</button>
+            <button onclick="saveEntry('Credit')" style="background:var(--danger); color:white; padding:10px; border:none; border-radius:5px; font-weight:bold;">ادھار کھاتہ</button>
         </div>
     </div>
 
@@ -78,14 +82,14 @@
     </div>
 
     <div id="tab1" class="tab-content active">
-        <table>
-            <thead><tr><th>تاریخ</th><th>نام</th><th>وزن</th><th>بل</th><th>حالت</th><th>حذف</th></tr></thead>
+        <table id="dailyTbl">
+            <thead><tr><th>نام</th><th>وزن</th><th>بل</th><th>حالت</th><th>حذف</th></tr></thead>
             <tbody id="dailyBody"></tbody>
         </table>
     </div>
 
     <div id="tab2" class="tab-content">
-        <table>
+        <table id="khataTbl">
             <thead><tr><th>نام</th><th>بقایا ادھار</th><th>ایکشن</th></tr></thead>
             <tbody id="khataBody"></tbody>
         </table>
@@ -96,76 +100,120 @@
             <div class="stat-card"><h4>کل گندم</h4><p id="sW">0</p><span id="sM">0 من</span></div>
             <div class="stat-card"><h4>کل کٹوتی</h4><p id="sK" style="color:#2ecc71">0</p><span>کلو گرام</span></div>
             <div class="stat-card"><h4>نقد آمدن</h4><p id="sC">0</p><span>روپے</span></div>
-            <div class="stat-card"><h4>بقایا ادھار</h4><p id="sP" style="color:red">0</p><span>روپے</span></div>
+            <div class="stat-card"><h4>مارکیٹ ادھار</h4><p id="sP" style="color:red">0</p><span>روپے</span></div>
         </div>
     </div>
 
     <br><hr>
     <div class="form-box" style="border: 2px solid var(--blue); margin-top:20px;">
-        <h3 style="grid-column:1/-1; border:none; color:var(--blue); margin:0;">آٹا ادھار رجسٹر (الگ ریکارڈ)</h3>
+        <h3 style="grid-column:1/-1; border:none; color:var(--blue); margin:0;">آٹا ادھار رجسٹر (الگ)</h3>
         <input type="text" id="sName" placeholder="خریدار کا نام">
         <input type="number" id="sWeight" placeholder="آٹا وزن (کلو)">
-        <input type="number" id="sRate" value="130">
-        <button class="btn-main" style="background:var(--blue);" onclick="saveSale()">آٹا ادھار سیو کریں</button>
+        <input type="number" id="sRate" value="130" placeholder="ریٹ">
+        <button class="btn-main" style="background:var(--blue);" onclick="saveSale()">آٹا فروخت سیو کریں</button>
     </div>
 
     <div style="overflow-x:auto;">
         <table id="saleTbl">
-            <thead><tr style="background:var(--blue); color:white;"><th>تاریخ/وقت</th><th>نام</th><th>وزن</th><th>بقایا</th><th>ایکشن</th></tr></thead>
+            <thead><tr style="background:var(--blue); color:white;"><th>تاریخ</th><th>نام</th><th>وزن</th><th>بقایا</th><th>ایکشن</th></tr></thead>
             <tbody id="saleBody"></tbody>
         </table>
     </div>
 </div>
 
 <script>
-    let pisaiDB = JSON.parse(localStorage.getItem('PISAI_DATA')) || [];
-    let salesDB = JSON.parse(localStorage.getItem('SALES_DATA')) || [];
+    let pisaiDB = JSON.parse(localStorage.getItem('PISAI_DATA_V2')) || [];
+    let salesDB = JSON.parse(localStorage.getItem('SALES_DATA_V2')) || [];
     let temp = null;
 
     function init() { render(); }
 
     function calculate() {
-        const name = document.getElementById('cName').value;
+        const name = document.getElementById('cName').value.trim();
         const weight = parseFloat(document.getElementById('wWeight').value);
         const rate = parseFloat(document.getElementById('aRate').value);
-        if(!name || !weight) return alert("معلومات مکمل کریں");
+        
+        if(!name || isNaN(weight) || weight <= 0) return alert("نام اور درست وزن درج کریں");
 
-        let fee = weight * 4.2;
-        let katotiVal = document.getElementById('noKat').checked ? 0 : (weight * 0.05);
-        let net = weight - katotiVal - (document.getElementById('payByA').checked ? (fee/rate) : 0);
+        // 1. پسائی + صفائی (4.2 روپے فی کلو)
+        let totalBill = weight * 4.2;
+        
+        // 2. کٹوتی وزن (5%)
+        let katotiWeight = document.getElementById('noKat').checked ? 0 : (weight * 0.05);
+        
+        // 3. صاف آٹا (وزن - کٹوتی)
+        let netFlour = weight - katotiWeight;
 
-        temp = { id: Date.now(), name, weight, bill: fee, kat: katotiVal, paid: 0, bal: fee, date: new Date().toLocaleString('ur-PK') };
-        document.getElementById('rBill').innerText = fee.toFixed(0);
-        document.getElementById('rNet').innerText = net.toFixed(2);
+        // 4. اگر بل آٹے سے کاٹنا ہے
+        if (document.getElementById('payByA').checked) {
+            let flourForBill = totalBill / rate;
+            netFlour -= flourForBill;
+            totalBill = 0; // نقد بل زیرو ہو گیا
+        }
+
+        temp = { 
+            id: Date.now(), 
+            name, 
+            weight, 
+            bill: totalBill, 
+            kat: katotiWeight, 
+            paid: 0, 
+            bal: totalBill, 
+            date: new Date().toLocaleString('ur-PK') 
+        };
+
+        document.getElementById('rBill').innerText = totalBill.toFixed(0);
+        document.getElementById('rNet').innerText = netFlour.toFixed(2);
+        document.getElementById('rKat').innerText = katotiWeight.toFixed(2);
         document.getElementById('receipt').style.display = 'block';
     }
 
     function saveEntry(status) {
         if(status === 'Paid') { temp.paid = temp.bill; temp.bal = 0; }
         pisaiDB.push(temp);
-        localStorage.setItem('PISAI_DATA', JSON.stringify(pisaiDB));
+        localStorage.setItem('PISAI_DATA_V2', JSON.stringify(pisaiDB));
         document.getElementById('receipt').style.display = 'none';
+        // ان پٹ فیلڈز خالی کرنا
+        document.getElementById('cName').value = '';
+        document.getElementById('wWeight').value = '';
         render();
     }
 
     function saveSale() {
-        const name = document.getElementById('sName').value;
+        const name = document.getElementById('sName').value.trim();
         const weight = parseFloat(document.getElementById('sWeight').value);
         const rate = parseFloat(document.getElementById('sRate').value);
-        if(!name || !weight) return alert("معلومات مکمل کریں");
+        
+        if(!name || isNaN(weight)) return alert("معلومات درست کریں");
 
-        let sale = { id: Date.now(), name, weight, bill: weight*rate, paid: 0, bal: weight*rate, date: new Date().toLocaleString('ur-PK') };
+        let sale = { 
+            id: Date.now(), 
+            name, 
+            weight, 
+            bill: weight * rate, 
+            paid: 0, 
+            bal: weight * rate, 
+            date: new Date().toLocaleString('ur-PK') 
+        };
         salesDB.push(sale);
-        localStorage.setItem('SALES_DATA', JSON.stringify(salesDB));
+        localStorage.setItem('SALES_DATA_V2', JSON.stringify(salesDB));
+        document.getElementById('sName').value = '';
+        document.getElementById('sWeight').value = '';
         render();
     }
 
     function render() {
-        // Daily
+        // Pisai Daily
         const dBody = document.getElementById('dailyBody');
         dBody.innerHTML = '';
         pisaiDB.slice().reverse().forEach(i => {
-            dBody.innerHTML += `<tr><td>${i.date.split(',')[0]}</td><td>${i.name}</td><td>${i.weight}</td><td>${i.bill.toFixed(0)}</td><td style="color:${i.bal>0?'red':'green'}">${i.bal>0?'ادھار':'نقد'}</td><td><button class="btn-del" onclick="del(${i.id},'p')">×</button></td></tr>`;
+            dBody.innerHTML += `<tr>
+                <td>${i.name}</td>
+                <td>${i.weight}</td>
+                <td>${i.bill.toFixed(0)}</td>
+                <td style="color:${i.bal>0?'red':'green'}; font-weight:bold">${i.bal>0?'ادھار':'نقد'}</td>
+                <td><button class="btn-del" onclick="del(${i.id},'p')">×</button></td>
+            </tr>`;
         });
 
         // Khata
@@ -174,14 +222,24 @@
         let groups = {};
         pisaiDB.forEach(i => { if(i.bal > 0) groups[i.name] = (groups[i.name] || 0) + i.bal; });
         for(let n in groups) {
-            kBody.innerHTML += `<tr><td>${n}</td><td style="color:red; font-weight:bold;">${groups[n].toFixed(0)}</td><td><button class="btn-pay" onclick="receivePisai('${n}')">وصول</button></td></tr>`;
+            kBody.innerHTML += `<tr>
+                <td>${n}</td>
+                <td style="color:red; font-weight:bold;">${groups[n].toFixed(0)}</td>
+                <td><button class="btn-pay" onclick="receivePisai('${n}')">وصول</button></td>
+            </tr>`;
         }
 
-        // Sales
+        // Sales Table
         const sBody = document.getElementById('saleBody');
         sBody.innerHTML = '';
         salesDB.slice().reverse().forEach(i => {
-            sBody.innerHTML += `<tr><td>${i.date}</td><td>${i.name}</td><td>${i.weight}</td><td style="color:red">${i.bal.toFixed(0)}</td><td><button class="btn-pay" onclick="receiveSale(${i.id})">وصول</button><button class="btn-del" onclick="del(${i.id},'s')">×</button></td></tr>`;
+            sBody.innerHTML += `<tr>
+                <td>${i.date.split(',')[0]}</td>
+                <td>${i.name}</td>
+                <td>${i.weight}</td>
+                <td style="color:red; font-weight:bold">${i.bal.toFixed(0)}</td>
+                <td><button class="btn-pay" onclick="receiveSale(${i.id})">وصول</button><button class="btn-del" onclick="del(${i.id},'s')">×</button></td>
+            </tr>`;
         });
 
         updateStats();
@@ -189,29 +247,29 @@
 
     function receivePisai(name) {
         let amt = parseFloat(prompt(`${name} سے وصول کی گئی رقم:`));
-        if(!amt) return;
+        if(isNaN(amt) || amt <= 0) return;
         pisaiDB.filter(i => i.name === name && i.bal > 0).forEach(i => {
             let take = Math.min(amt, i.bal);
             i.paid += take; i.bal -= take; amt -= take;
         });
-        localStorage.setItem('PISAI_DATA', JSON.stringify(pisaiDB));
+        localStorage.setItem('PISAI_DATA_V2', JSON.stringify(pisaiDB));
         render();
     }
 
     function receiveSale(id) {
         let amt = parseFloat(prompt("وصولی رقم درج کریں:"));
-        if(!amt) return;
+        if(isNaN(amt) || amt <= 0) return;
         salesDB.forEach(i => { if(i.id === id) { i.paid += amt; i.bal -= amt; } });
-        localStorage.setItem('SALES_DATA', JSON.stringify(salesDB));
+        localStorage.setItem('SALES_DATA_V2', JSON.stringify(salesDB));
         render();
     }
 
     function del(id, type) {
-        if(!confirm("حذف کریں؟")) return;
+        if(!confirm("کیا آپ حذف کرنا چاہتے ہیں؟")) return;
         if(type === 'p') pisaiDB = pisaiDB.filter(i => i.id !== id);
         else salesDB = salesDB.filter(i => i.id !== id);
-        localStorage.setItem('PISAI_DATA', JSON.stringify(pisaiDB));
-        localStorage.setItem('SALES_DATA', JSON.stringify(salesDB));
+        localStorage.setItem('PISAI_DATA_V2', JSON.stringify(pisaiDB));
+        localStorage.setItem('SALES_DATA_V2', JSON.stringify(salesDB));
         render();
     }
 
@@ -235,17 +293,16 @@
 
     function exportData() {
         const allData = { 
-            pisai: JSON.parse(localStorage.getItem('PISAI_DATA')) || [], 
-            sales: JSON.parse(localStorage.getItem('SALES_DATA')) || [] 
+            pisai: JSON.parse(localStorage.getItem('PISAI_DATA_V2')) || [], 
+            sales: JSON.parse(localStorage.getItem('SALES_DATA_V2')) || [] 
         };
         const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(allData));
         const downloadAnchorNode = document.createElement('a');
         downloadAnchorNode.setAttribute("href", dataStr);
-        downloadAnchorNode.setAttribute("download", "chaki_full_backup.json");
+        downloadAnchorNode.setAttribute("download", "chaki_backup_" + new Date().toLocaleDateString() + ".json");
         document.body.appendChild(downloadAnchorNode);
         downloadAnchorNode.click();
         downloadAnchorNode.remove();
-        alert("بیک اپ فائل ڈاؤن لوڈ ہو گئی!");
     }
 
     function importData() {
@@ -258,8 +315,8 @@
             reader.onload = event => {
                 const imported = JSON.parse(event.target.result);
                 if(confirm("پرانا ڈیٹا لوڈ کریں؟ موجودہ ڈیٹا مٹ جائے گا۔")) {
-                    localStorage.setItem('PISAI_DATA', JSON.stringify(imported.pisai));
-                    localStorage.setItem('SALES_DATA', JSON.stringify(imported.sales));
+                    localStorage.setItem('PISAI_DATA_V2', JSON.stringify(imported.pisai));
+                    localStorage.setItem('SALES_DATA_V2', JSON.stringify(imported.sales));
                     location.reload();
                 }
             };
@@ -268,5 +325,5 @@
     }
 </script>
 </body>
-</html>
+    </html>
     
